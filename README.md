@@ -1,2 +1,2 @@
 # urldl
-The easiest way to download files from URLs
+The easiest way to download files from URLs using Python
