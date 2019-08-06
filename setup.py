@@ -17,13 +17,14 @@
 # along with Pycallisto. If not, see <https://www.gnu.org/licenses/>.
 
 import setuptools
+import urldl
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="urldl",
-    version="0.0.1",
+    version=urldl.__version__,
     author="Andre Rossi Korol",
     author_email="anrobits@yahoo.com.br",
     description="The easiest way to download files from URLs",
@@ -31,6 +32,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/andrekorol/urldl",
     install_requires=["multipledispatch"],
+    keywords=["url", "download"],
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
