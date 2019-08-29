@@ -25,19 +25,35 @@ from shutil import move
 from socket import timeout
 
 
+def raise_with_msg(exception_obj, msg, preserve_traceback=True):
+    """
+    Raises an exception with a custom message.
+
+    :param exception_obj: exception object to be raised.
+    :param msg: custom message to be attached to the exception.
+    :param preserve_traceback: Boolean to indicate whether to
+    raise the exception with the traceback from where the original
+    error occurred or not.
+    """
+    if preserve_traceback:
+        raise Exception(msg).with_traceback(exception_obj.__traceback__)
+    else:
+        raise Exception(msg) from exception_obj
+
+
 def url_retrieve(url: str, save_dir: str = ""):
     """
     Uses urllib to retrieve a given URL.
 
     :param url: URL to be retrieved.
-    :param: save_dir: directory to place what has been retrieved.
+    :param save_dir: directory to place what has been retrieved.
     :returns: absolute path of the retrieved file.
     """
     try:
         downloaded_file = urllib.request.urlretrieve(url, url.split('/')[-1])
         filename = downloaded_file[0]
 
-        if save_dir != '':
+        if save_dir != "":
             file_path = join(save_dir, filename)
             if not isdir(save_dir):
                 makedirs(save_dir)
@@ -50,14 +66,17 @@ def url_retrieve(url: str, save_dir: str = ""):
 
     except (HTTPError, URLError) as error:
         urllib.request.urlcleanup()
-        print("Data from {} not retrieved because {}".format(url, error))
-    except ValueError:
+        error_msg = "Data from {} not retrieved because {}".format(url, error)
+        raise_with_msg(error, error_msg)
+    except ValueError as error:
         urllib.request.urlcleanup()
-        print("unknown url type: '{}'".format(url))
-        print(url, "is not a valid url")
-    except timeout:
+        error_msg = "unknown url type: '{}'\n{} is not a valid url".format(url,
+                                                                           url)
+        raise_with_msg(error, error_msg)
+    except timeout as error:
         urllib.request.urlcleanup()
-        print("socket timed out - URL {}".format(url))
+        error_msg = "socket timed out - URL {}".format(url)
+        raise_with_msg(error, error_msg)
 
 
 @dispatch(str)
