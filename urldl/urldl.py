@@ -1,4 +1,4 @@
-# URLDL: The easiest way to download files from URLs using Python
+# urldl: The easiest way to download files from URLs using Python
 # Copyright (C) 2019 Andre Rossi Korol
 
 # This file is part of urldl.
