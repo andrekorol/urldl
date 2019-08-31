@@ -19,9 +19,8 @@
 from multipledispatch import dispatch
 from urllib.error import HTTPError, URLError
 import urllib.request
-from os.path import join, isdir, abspath
-from os import makedirs
-from shutil import move
+import os
+import os.path as path
 from socket import timeout
 
 
@@ -54,10 +53,10 @@ def url_retrieve(url: str, save_dir: str = ""):
         with urllib.request.urlopen(url) as fin:
             url_content = fin.read()
         if save_dir:
-            filepath = join(save_dir, filename)
-            if not isdir(save_dir):
+            filepath = path.join(save_dir, filename)
+            if not path.isdir(save_dir):
                 try:
-                    makedirs(save_dir)
+                    os.makedirs(save_dir)
                 except PermissionError as error:
                     urllib.request.urlcleanup()
                     error_msg = "The current user does not have permission " \
@@ -69,7 +68,7 @@ def url_retrieve(url: str, save_dir: str = ""):
             fout.write(url_content)
 
         urllib.request.urlcleanup()
-        return abspath(filepath)
+        return path.abspath(filepath)
 
     except (HTTPError, URLError) as error:
         urllib.request.urlcleanup()
