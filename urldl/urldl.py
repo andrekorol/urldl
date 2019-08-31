@@ -55,6 +55,14 @@ def url_retrieve(url: str, save_dir: str = ""):
             url_content = fin.read()
         if save_dir:
             filepath = join(save_dir, filename)
+            if not isdir(save_dir):
+                try:
+                    makedirs(save_dir)
+                except PermissionError as error:
+                    urllib.request.urlcleanup()
+                    error_msg = "The current user does not have permission " \
+                                "to create the '{}' directory".format(save_dir)
+                    raise_with_msg(error, error_msg)
         else:
             filepath = filename
         with open(filepath, 'wb') as fout:
