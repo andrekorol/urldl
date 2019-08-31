@@ -50,19 +50,18 @@ def url_retrieve(url: str, save_dir: str = ""):
     :returns: absolute path of the retrieved file.
     """
     try:
-        downloaded_file = urllib.request.urlretrieve(url, url.split('/')[-1])
-        filename = downloaded_file[0]
-
-        if save_dir != "":
-            file_path = join(save_dir, filename)
-            if not isdir(save_dir):
-                makedirs(save_dir)
-            move(filename, file_path)
-            urllib.request.urlcleanup()
-            return abspath(file_path)
+        filename = url.split("/")[-1]
+        with urllib.request.urlopen(url) as fin:
+            url_content = fin.read()
+        if save_dir:
+            filepath = join(save_dir, filename)
+        else:
+            filepath = filename
+        with open(filepath, 'wb') as fout:
+            fout.write(url_content)
 
         urllib.request.urlcleanup()
-        return abspath(filename)
+        return abspath(filepath)
 
     except (HTTPError, URLError) as error:
         urllib.request.urlcleanup()
