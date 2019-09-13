@@ -32,7 +32,7 @@ def raise_with_msg(exception_obj, msg, preserve_traceback=True):
     :param msg: custom message to be attached to the exception.
     :param preserve_traceback: Boolean to indicate whether to
     raise the exception with the traceback from where the original
-    error occurred or not.
+    error occurred.
     """
     if preserve_traceback:
         raise Exception(msg).with_traceback(exception_obj.__traceback__)
