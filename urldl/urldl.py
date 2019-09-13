@@ -40,7 +40,7 @@ def raise_with_msg(exception_obj, msg, preserve_traceback=True):
         raise Exception(msg) from exception_obj
 
 
-def url_retrieve(url: str, save_dir: str = ""):
+def url_retrieve(url: str, save_dir: str = "") -> str:
     """
     Uses urllib to retrieve a given URL.
 
