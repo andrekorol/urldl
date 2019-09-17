@@ -21,6 +21,8 @@ import unittest
 import hashlib
 import os
 import os.path as path
+from unittest import mock
+from urllib.error import HTTPError, URLError
 
 from urldl import urldl
 
@@ -60,9 +62,28 @@ class UrldlTestCase(unittest.TestCase):
         self.valid_url = "https://example.com"
         self.unknown_url_name = "httpxsl://example.com"
         self.unknown_url_type = "example.com"
+        self.makedirs_patcher = mock.patch("os.makedirs")
+        self.mock_makedirs = self.makedirs_patcher.start()
+        self.mock_makedirs.side_effect = PermissionError
+        self.url_retrieve_patcher = mock.patch("urldl.urldl.url_retrieve")
+        self.mock_fp = open("mock_fp", "w")
+
 
     @unittest.skipIf(not internet(), "requires an internet connection")
     def test_url_retrieve(self):
+        self.assertRaises(PermissionError, urldl.url_retrieve, self.valid_url,
+                          "mock_dir")
+        self.makedirs_patcher.stop()
+
+        self.assertRaises(URLError, urldl.url_retrieve, self.unknown_url_name)
+
+        self.mock_url_retrieve = self.url_retrieve_patcher.start()
+        self.mock_url_retrieve.side_effect = HTTPError("mock_url", 404, "mock_msg", "headers", self.mock_fp)
+        self.assertRaises(HTTPError, urldl.url_retrieve, self.valid_url)
+        self.url_retrieve_patcher.stop()
+
+        self.assertRaises(ValueError, urldl.url_retrieve,
+                          self.unknown_url_type)
         self.valid_url_path = urldl.url_retrieve(self.valid_url)
         self.assertIsInstance(self.valid_url_path, str)
         self.assertEqual("example.com", path.basename(self.valid_url_path))
@@ -70,7 +91,10 @@ class UrldlTestCase(unittest.TestCase):
                          md5(path.join("test", "example.com")))
 
     def tearDown(self):
-        os.remove(self.valid_url_path)
+        if os.path.exists(self.valid_url_path):
+            os.remove(self.valid_url_path)
+        if os.path.exists("mock_fp"):
+            os.remove("mock_fp")
 
 
 if __name__ == '__main__':
