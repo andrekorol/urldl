@@ -61,8 +61,7 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
         if isinstance(e, URLError):
             raise URLError(error_msg).with_traceback(e.__traceback__)
         else:
-            print(error_msg)
-            raise HTTPError
+            raise HTTPError(e.url, e.code, error_msg, e.hdrs, e.fp)
 
     except ValueError as e:
         urllib.request.urlcleanup()
