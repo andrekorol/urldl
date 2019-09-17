@@ -24,22 +24,6 @@ from socket import timeout
 from typing import List
 
 
-def raise_with_msg(exception_obj, msg, preserve_traceback=True):
-    """
-    Raises an exception with a custom message.
-
-    :param exception_obj: exception object to be raised.
-    :param msg: custom message to be attached to the exception.
-    :param preserve_traceback: Boolean to indicate whether to
-    raise the exception with the traceback from where the original
-    error occurred.
-    """
-    if preserve_traceback:
-        raise Exception(msg).with_traceback(exception_obj.__traceback__)
-    else:
-        raise Exception(msg) from exception_obj
-
-
 def url_retrieve(url: str, save_dir: str = "") -> str:
     """
     Uses urllib to retrieve a given URL.
@@ -57,11 +41,12 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
             if not path.isdir(save_dir):
                 try:
                     os.makedirs(save_dir)
-                except PermissionError as error:
+                except PermissionError as e:
                     urllib.request.urlcleanup()
                     error_msg = "The current user does not have permission " \
                                 "to create the '{}' directory".format(save_dir)
-                    raise_with_msg(error, error_msg)
+                    raise PermissionError(error_msg).\
+                        with_traceback(e.__traceback__)
         else:
             filepath = filename
         with open(filepath, 'wb') as fout:
@@ -70,19 +55,20 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
         urllib.request.urlcleanup()
         return path.abspath(filepath)
 
-    except (HTTPError, URLError) as error:
+    except (URLError, HTTPError) as e:
         urllib.request.urlcleanup()
-        error_msg = "Data from {} not retrieved because {}".format(url, error)
-        raise_with_msg(error, error_msg)
-    except ValueError as error:
+        error_msg = "Data from {} not retrieved because {}".format(url, e)
+        if isinstance(e, URLError):
+            raise URLError(error_msg).with_traceback(e.__traceback__)
+        else:
+            print(error_msg)
+            raise HTTPError
+
+    except ValueError as e:
         urllib.request.urlcleanup()
         error_msg = "unknown url type: '{}'\n{} is not a valid url".format(url,
                                                                            url)
-        raise_with_msg(error, error_msg)
-    except timeout as error:
-        urllib.request.urlcleanup()
-        error_msg = "socket timed out - URL {}".format(url)
-        raise_with_msg(error, error_msg)
+        raise ValueError(error_msg).with_traceback(e.__traceback__)
 
 
 def download(url: str, save_dir: str = "") -> str:
