@@ -30,7 +30,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/andrekorol/urldl",
-    install_requires=["multipledispatch"],
     keywords=["url", "download"],
     packages=setuptools.find_packages(),
     classifiers=[
