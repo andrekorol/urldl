@@ -21,6 +21,7 @@ import unittest
 import hashlib
 import os
 import os.path as path
+import shutil
 from unittest import mock
 from urllib.error import HTTPError, URLError
 
@@ -36,7 +37,6 @@ def internet(host="8.8.8.8", port=53, timeout=3):
     :param port: port to use for connection. Defaults to 53/tcp.
     :param timeout: time, in seconds, for socket timeout. Defaults to 3
     seconds.
-
     :returns: True if connection is successful, otherwise, False.
     """
     try:
@@ -50,6 +50,12 @@ def internet(host="8.8.8.8", port=53, timeout=3):
 
 
 def md5(fname):
+    """
+    Get the MD5 checksum of a given file.
+
+    :param fname: name of the file to be checked.
+    :returns: hex string representation for the MD5 hash digest.
+    """
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -68,7 +74,6 @@ class UrldlTestCase(unittest.TestCase):
         self.url_retrieve_patcher = mock.patch("urldl.urldl.url_retrieve")
         self.mock_fp = open("mock_fp", "w")
 
-
     @unittest.skipIf(not internet(), "requires an internet connection")
     def test_url_retrieve(self):
         self.assertRaises(PermissionError, urldl.url_retrieve, self.valid_url,
@@ -78,23 +83,38 @@ class UrldlTestCase(unittest.TestCase):
         self.assertRaises(URLError, urldl.url_retrieve, self.unknown_url_name)
 
         self.mock_url_retrieve = self.url_retrieve_patcher.start()
-        self.mock_url_retrieve.side_effect = HTTPError("mock_url", 404, "mock_msg", "headers", self.mock_fp)
+        self.mock_url_retrieve.side_effect = HTTPError("mock_url", 404,
+                                                       "mock_msg", "headers",
+                                                       self.mock_fp)
+
         self.assertRaises(HTTPError, urldl.url_retrieve, self.valid_url)
         self.url_retrieve_patcher.stop()
 
         self.assertRaises(ValueError, urldl.url_retrieve,
                           self.unknown_url_type)
+
         self.valid_url_path = urldl.url_retrieve(self.valid_url)
         self.assertIsInstance(self.valid_url_path, str)
         self.assertEqual("example.com", path.basename(self.valid_url_path))
         self.assertEqual(md5(self.valid_url_path),
                          md5(path.join("test", "example.com")))
 
+        self.valid_url_dir_path = urldl.url_retrieve(self.valid_url,
+                                                     "valid_dir")
+        self.assertIsInstance(self.valid_url_dir_path, str)
+
+        self.assertEqual(path.join("valid_dir", "example.com"),
+                         path.join(self.valid_url_dir_path.split(path.sep)[-2],
+                                   self.valid_url_dir_path.split(path.sep)[-1])
+                         )
+
     def tearDown(self):
         if os.path.exists(self.valid_url_path):
             os.remove(self.valid_url_path)
         if os.path.exists("mock_fp"):
             os.remove("mock_fp")
+        if path.exists("valid_dir"):
+            shutil.rmtree("valid_dir", )
 
 
 if __name__ == '__main__':
