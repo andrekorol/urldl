@@ -1,6 +1,5 @@
 language: python
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
@@ -9,7 +8,6 @@ python:
   - "nightly"
 install:
   - python setup.py -q install
-  - pip install codecov
+  - pip install codecov coverage
 script:
-  - python -m unittest
-  - codecov
+  - coverage run tests.py
