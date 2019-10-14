@@ -10,4 +10,4 @@ install:
   - python setup.py -q install
   - pip install codecov coverage
 script:
-  - coverage run tests.py
+  - coverage run -m unittest
