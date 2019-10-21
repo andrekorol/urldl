@@ -49,20 +49,6 @@ def internet(host="8.8.8.8", port=53, timeout=3):
         return False
 
 
-def md5(fname):
-    """
-    Get the MD5 checksum of a given file.
-
-    :param fname: name of the file to be checked.
-    :returns: hex string representation for the MD5 hash digest.
-    """
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
-
-
 class UrldlTestCase(unittest.TestCase):
     def setUp(self):
         self.valid_url = "https://example.com"
@@ -96,8 +82,6 @@ class UrldlTestCase(unittest.TestCase):
         self.valid_url_path = urldl.url_retrieve(self.valid_url)
         self.assertIsInstance(self.valid_url_path, str)
         self.assertEqual("example.com", path.basename(self.valid_url_path))
-        self.assertEqual(md5(self.valid_url_path),
-                         md5(path.join("test", "example.com")))
 
         self.valid_url_dir_path = urldl.url_retrieve(self.valid_url,
                                                      "valid_dir")
