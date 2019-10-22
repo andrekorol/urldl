@@ -71,30 +71,30 @@ class UrldlTestCase(unittest.TestCase):
 
     @unittest.skipIf(not internet(), "requires an internet connection")
     def test_url_retrieve(self):
-        self.makedirs_patcher = mock.patch("os.makedirs")
-        self.mock_makedirs = self.makedirs_patcher.start()
-        self.mock_makedirs.side_effect = PermissionError
+        makedirs_patcher = mock.patch("os.makedirs")
+        mock_makedirs = makedirs_patcher.start()
+        mock_makedirs.side_effect = PermissionError
 
         self.assertRaises(PermissionError, urldl.url_retrieve, self.valid_url,
                           "mock_dir")
-        self.makedirs_patcher.stop()
+        makedirs_patcher.stop()
 
         self.assertRaises(URLError, urldl.url_retrieve, self.unknown_url_name)
 
         self.assertRaises(ValueError, urldl.url_retrieve,
                           self.unknown_url_type)
 
-        self.valid_url_path = urldl.url_retrieve(self.valid_url)
-        self.assertIsInstance(self.valid_url_path, str)
-        self.assertEqual("example.com", path.basename(self.valid_url_path))
+        valid_url_path = urldl.url_retrieve(self.valid_url)
+        self.assertIsInstance(valid_url_path, str)
+        self.assertEqual("example.com", path.basename(valid_url_path))
 
-        self.valid_url_dir_path = urldl.url_retrieve(self.valid_url,
-                                                     "valid_dir")
-        self.assertIsInstance(self.valid_url_dir_path, str)
+        valid_url_dir_path = urldl.url_retrieve(self.valid_url,
+                                                "valid_dir")
+        self.assertIsInstance(valid_url_dir_path, str)
 
         self.assertEqual(path.join("valid_dir", "example.com"),
-                         path.join(self.valid_url_dir_path.split(path.sep)[-2],
-                                   self.valid_url_dir_path.split(path.sep)[-1])
+                         path.join(valid_url_dir_path.split(path.sep)[-2],
+                                   valid_url_dir_path.split(path.sep)[-1])
                          )
 
     @unittest.skipIf(not internet(), "requires an internet connection")
@@ -115,7 +115,7 @@ class UrldlTestCase(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists("example.com"):
-            os.remove(self.valid_url_path)
+            os.remove("example.com")
         if path.exists("valid_dir"):
             shutil.rmtree("valid_dir")
         if path.exists("black-18dp.zip"):
