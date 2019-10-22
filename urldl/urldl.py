@@ -18,6 +18,8 @@
 
 from urllib.error import URLError
 import urllib.request
+import urllib.parse
+import cgi
 import os
 import os.path as path
 from typing import List
@@ -32,9 +34,21 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
     :returns: absolute path of the retrieved file.
     """
     try:
-        filename = url.split("/")[-1]
-        with urllib.request.urlopen(url) as fin:
-            url_content = fin.read()
+        with urllib.request.urlopen(url) as response:
+            content_disposition = response.headers.get("Content-Disposition",
+                                                       "")
+            _, params = cgi.parse_header(content_disposition)
+            if "filename" in params.keys():
+                filename = params["filename"]
+            else:
+                response_filepath = urllib.parse.urlparse(response.url).path
+                filename = path.basename(response_filepath)
+
+                if filename == "":
+                    filename = filename = url.split("/")[-1]
+
+            url_content = response.read()
+
         if save_dir:
             filepath = path.join(save_dir, filename)
         else:
