@@ -46,7 +46,7 @@ def download(url: str, save_dir: str = "") -> str:
                 filename = path.basename(response_filepath)
 
             if filename == "":
-                filename = filename = url.split("/")[-1]
+                filename = url.split("/")[-1]
 
             url_content = response.read()
 
