@@ -55,11 +55,6 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
         urllib.request.urlcleanup()
         return path.abspath(filepath)
 
-    except HTTPError as e:
-        urllib.request.urlcleanup()
-        error_msg = "Data from {} not retrieved because {}".format(url, e)
-        raise HTTPError(e.url, e.code, error_msg, e.hdrs, e.fp)
-
     except URLError as e:
         urllib.request.urlcleanup()
         error_msg = "Data from {} not retrieved because {}".format(url, e)
