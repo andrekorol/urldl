@@ -85,8 +85,6 @@ class UrldlTestCase(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.valid_url_path):
             os.remove(self.valid_url_path)
-        if os.path.exists("mock_fp"):
-            os.remove("mock_fp")
         if path.exists("valid_dir"):
             shutil.rmtree("valid_dir", )
 

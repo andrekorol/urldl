@@ -38,19 +38,23 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
             url_content = fin.read()
         if save_dir:
             filepath = path.join(save_dir, filename)
-            if not path.isdir(save_dir):
-                try:
-                    os.makedirs(save_dir)
-                except PermissionError as e:
-                    urllib.request.urlcleanup()
-                    error_msg = "The current user does not have permission " \
-                                "to create the '{}' directory".format(save_dir)
-                    raise PermissionError(error_msg).\
-                        with_traceback(e.__traceback__)
         else:
             filepath = filename
-        with open(filepath, 'wb') as fout:
-            fout.write(url_content)
+
+        try:
+            with open(filepath, 'wb') as fout:
+                fout.write(url_content)
+        except FileNotFoundError:
+            try:
+                os.makedirs(save_dir)
+                with open(filepath, 'wb') as fout:
+                    fout.write(url_content)
+            except PermissionError as e:
+                urllib.request.urlcleanup()
+                error_msg = "The current user does not have permission " \
+                            "to create the '{}' directory".format(save_dir)
+                raise PermissionError(error_msg).\
+                    with_traceback(e.__traceback__)
 
         urllib.request.urlcleanup()
         return path.abspath(filepath)
