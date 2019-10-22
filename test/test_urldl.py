@@ -134,11 +134,11 @@ class UrldlTestCase(unittest.TestCase):
             os.remove("example.com")
         if path.exists("valid_dir"):
             shutil.rmtree("valid_dir")
-        if path.exists("black-18dp.zip"):
-            os.remove("black-18dp.zip")
-        if path.exists("24px.svg"):
-            os.remove("24px.svg")
-        if path.exists(path.join("icons")):
+        if path.exists("code-black-18dp.zip"):
+            os.remove("code-black-18dp.zip")
+        if path.exists("https-24px.svg"):
+            os.remove("https-24px.svg")
+        if path.exists("icons"):
             shutil.rmtree("icons")
 
 
