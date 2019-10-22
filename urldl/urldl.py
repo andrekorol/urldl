@@ -16,11 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with urldl. If not, see <https://www.gnu.org/licenses/>.
 
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 import urllib.request
 import os
 import os.path as path
-from socket import timeout
 from typing import List
 
 
