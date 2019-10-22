@@ -102,16 +102,35 @@ class UrldlTestCase(unittest.TestCase):
         code_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
                         "code/v1/black-18dp.zip"
         code_icon_path = urldl.download(code_icon_url)
-        self.assertEqual("black-18dp.zip", path.basename(code_icon_path))
+        self.assertEqual("code-black-18dp.zip", path.basename(code_icon_path))
         self.assertEqual(md5(code_icon_path),
                          md5(path.join("test", "code-black-18dp.zip")))
 
         https_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
-                         "https/v1/24px.svg"
+                         "https/v1/24px.svg?download=true"
         https_icon_path = urldl.download(https_icon_url)
-        self.assertEqual("24px.svg", path.basename(https_icon_path))
+        self.assertEqual("https-24px.svg", path.basename(https_icon_path))
         self.assertEqual(md5(https_icon_path),
                          md5(path.join("test", "https-24px.svg")))
+
+    @unittest.skipIf(not internet(), "requires an internet connection")
+    def test_download_list(self):
+        alarm_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
+                         "alarm/v1/24px.svg?download=true"
+        backup_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
+                          "backup/v1/24px.svg?download=true"
+        copyright_icon_url = "https://fonts.gstatic.com/s/i/materialiconsshar"\
+                             "p/copyright/v2/24px.svg?download=true"
+        delete_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
+                          "delete/v1/24px.svg?download=true"
+        icon_url_list = [alarm_icon_url, backup_icon_url, copyright_icon_url,
+                         delete_icon_url]
+
+        urldl.download_list(icon_url_list, "icons")
+
+        for icon in os.listdir("icons"):
+            self.assertEqual(md5(path.join("icons", icon)),
+                             md5(path.join("test", "icons", icon)))
 
     def tearDown(self):
         if os.path.exists("example.com"):
@@ -122,6 +141,8 @@ class UrldlTestCase(unittest.TestCase):
             os.remove("black-18dp.zip")
         if path.exists("24px.svg"):
             os.remove("24px.svg")
+        if path.exists(path.join("icons")):
+            shutil.rmtree("icons")
 
 
 if __name__ == '__main__':
