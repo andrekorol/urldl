@@ -70,26 +70,25 @@ class UrldlTestCase(unittest.TestCase):
         self.unknown_url_type = "example.com"
 
     @unittest.skipIf(not internet(), "requires an internet connection")
-    def test_url_retrieve(self):
+    def test_download(self):
         makedirs_patcher = mock.patch("os.makedirs")
         mock_makedirs = makedirs_patcher.start()
         mock_makedirs.side_effect = PermissionError
 
-        self.assertRaises(PermissionError, urldl.url_retrieve, self.valid_url,
+        self.assertRaises(PermissionError, urldl.download, self.valid_url,
                           "mock_dir")
         makedirs_patcher.stop()
 
-        self.assertRaises(URLError, urldl.url_retrieve, self.unknown_url_name)
+        self.assertRaises(URLError, urldl.download, self.unknown_url_name)
 
-        self.assertRaises(ValueError, urldl.url_retrieve,
+        self.assertRaises(ValueError, urldl.download,
                           self.unknown_url_type)
 
-        valid_url_path = urldl.url_retrieve(self.valid_url)
+        valid_url_path = urldl.download(self.valid_url)
         self.assertIsInstance(valid_url_path, str)
         self.assertEqual("example.com", path.basename(valid_url_path))
 
-        valid_url_dir_path = urldl.url_retrieve(self.valid_url,
-                                                "valid_dir")
+        valid_url_dir_path = urldl.download(self.valid_url, "valid_dir")
         self.assertIsInstance(valid_url_dir_path, str)
 
         self.assertEqual(path.join("valid_dir", "example.com"),
@@ -97,8 +96,6 @@ class UrldlTestCase(unittest.TestCase):
                                    valid_url_dir_path.split(path.sep)[-1])
                          )
 
-    @unittest.skipIf(not internet(), "requires an internet connection")
-    def test_download(self):
         code_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
                         "code/v1/black-18dp.zip"
         code_icon_path = urldl.download(code_icon_url)

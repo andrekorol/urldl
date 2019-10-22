@@ -25,13 +25,14 @@ import os.path as path
 from typing import List
 
 
-def url_retrieve(url: str, save_dir: str = "") -> str:
+def download(url: str, save_dir: str = "") -> str:
     """
-    Uses urllib to retrieve a given URL.
+    Downloads the file found at the given URL.
 
-    :param url: URL to be retrieved.
-    :param save_dir: directory to place what has been retrieved.
-    :returns: absolute path of the retrieved file.
+    :param url: URL string of a file to be downloaded.
+    :param save_dir: directory to save downloaded file.
+    If omitted, the file is saved in the current working directory.
+    :returns: absolute path of file downloaded from the given URL.
     """
     try:
         with urllib.request.urlopen(url) as response:
@@ -84,18 +85,6 @@ def url_retrieve(url: str, save_dir: str = "") -> str:
         raise ValueError(error_msg).with_traceback(e.__traceback__)
 
 
-def download(url: str, save_dir: str = "") -> str:
-    """
-    Downloads the file found at the given URL.
-
-    :param url: URL string of a file to be downloaded.
-    :param save_dir: directory to save downloaded file.
-    If omitted, the file is saved in the current working directory.
-    :returns: absolute path of file downloaded from the given URL.
-    """
-    return url_retrieve(url, save_dir)
-
-
 def download_list(url_list: List[str], save_dir: str = "") -> List[str]:
     """
     Downloads the files from the given list of URLs.
@@ -107,6 +96,6 @@ def download_list(url_list: List[str], save_dir: str = "") -> List[str]:
     """
     paths_list = []
     for url in url_list:
-        paths_list.append(url_retrieve(url, save_dir))
+        paths_list.append(download(url, save_dir))
 
     return paths_list
