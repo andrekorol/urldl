@@ -23,7 +23,7 @@ import os
 import os.path as path
 import shutil
 from unittest import mock
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 
 from urldl import urldl
 
@@ -49,17 +49,32 @@ def internet(host="8.8.8.8", port=53, timeout=3):
         return False
 
 
+def md5(fname):
+    """
+    Get the MD5 checksum of a given file.
+
+    :param fname: name of the file to be checked.
+    :returns: hex string representation for the MD5 hash digest.
+    """
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
 class UrldlTestCase(unittest.TestCase):
     def setUp(self):
         self.valid_url = "https://example.com"
         self.unknown_url_name = "httpxsl://example.com"
         self.unknown_url_type = "example.com"
+
+    @unittest.skipIf(not internet(), "requires an internet connection")
+    def test_url_retrieve(self):
         self.makedirs_patcher = mock.patch("os.makedirs")
         self.mock_makedirs = self.makedirs_patcher.start()
         self.mock_makedirs.side_effect = PermissionError
 
-    @unittest.skipIf(not internet(), "requires an internet connection")
-    def test_url_retrieve(self):
         self.assertRaises(PermissionError, urldl.url_retrieve, self.valid_url,
                           "mock_dir")
         self.makedirs_patcher.stop()
@@ -82,11 +97,31 @@ class UrldlTestCase(unittest.TestCase):
                                    self.valid_url_dir_path.split(path.sep)[-1])
                          )
 
+    @unittest.skipIf(not internet(), "requires an internet connection")
+    def test_download(self):
+        code_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
+                        "code/v1/black-18dp.zip"
+        code_icon_path = urldl.download(code_icon_url)
+        self.assertEqual("black-18dp.zip", path.basename(code_icon_path))
+        self.assertEqual(md5(code_icon_path),
+                         md5(path.join("test", "code-black-18dp.zip")))
+
+        https_icon_url = "https://fonts.gstatic.com/s/i/materialiconssharp/"\
+                         "https/v1/24px.svg"
+        https_icon_path = urldl.download(https_icon_url)
+        self.assertEqual("24px.svg", path.basename(https_icon_path))
+        self.assertEqual(md5(https_icon_path),
+                         md5(path.join("test", "https-24px.svg")))
+
     def tearDown(self):
-        if os.path.exists(self.valid_url_path):
+        if os.path.exists("example.com"):
             os.remove(self.valid_url_path)
         if path.exists("valid_dir"):
-            shutil.rmtree("valid_dir", )
+            shutil.rmtree("valid_dir")
+        if path.exists("black-18dp.zip"):
+            os.remove("black-18dp.zip")
+        if path.exists("24px.svg"):
+            os.remove("24px.svg")
 
 
 if __name__ == '__main__':
