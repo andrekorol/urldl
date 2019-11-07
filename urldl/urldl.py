@@ -22,10 +22,9 @@ import urllib.parse
 import cgi
 import os
 import os.path as path
-from typing import List
 
 
-def download(url: str, save_dir: str = "") -> str:
+def download(url, save_dir=""):
     """
     Downloads the file found at the given URL.
 
@@ -71,6 +70,7 @@ def download(url: str, save_dir: str = "") -> str:
                     with_traceback(e.__traceback__)
 
         urllib.request.urlcleanup()
+
         return path.abspath(filepath)
 
     except URLError as e:
@@ -85,7 +85,7 @@ def download(url: str, save_dir: str = "") -> str:
         raise ValueError(error_msg).with_traceback(e.__traceback__)
 
 
-def download_list(url_list: List[str], save_dir: str = "") -> List[str]:
+def download_list(url_list, save_dir=""):
     """
     Downloads the files from the given list of URLs.
 
