@@ -23,7 +23,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="urldl",
-    version="0.0.1",
+    version="0.1.0",
     author="Andre Rossi Korol",
     author_email="anrobits@yahoo.com.br",
     description="The easiest way to download files from URLs",
