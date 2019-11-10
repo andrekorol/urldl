@@ -1,11 +1,16 @@
 language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.7-dev"
-  - "3.8-dev"
-  - "nightly"
+jobs:
+  include:
+    - name: "Python on Linux"
+      python:
+        - "2.7"
+        - "3.4"
+        - "3.5"
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.8-dev"
+        - "nightly"
 install:
   - python setup.py -q install
   - pip install codecov coverage
