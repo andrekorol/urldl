@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with urldl. If not, see <https://www.gnu.org/licenses/>.
 
-import socket
-import unittest
 import hashlib
 import os
 import os.path as path
 import shutil
+import socket
+import unittest
 from unittest import mock
 from urllib.error import URLError
 

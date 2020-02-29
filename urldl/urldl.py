@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with urldl. If not, see <https://www.gnu.org/licenses/>.
 
-from urllib.error import URLError
-import urllib.request
-import urllib.parse
 import cgi
 import os
 import os.path as path
+import urllib.parse
+import urllib.request
+from urllib.error import URLError
 
 
 def download(url, save_dir=""):
