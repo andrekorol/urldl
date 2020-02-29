@@ -31,7 +31,8 @@ def download(url: str, filename: Optional[str] = '',
 
         with open(pathlib.PurePath(save_dir, filename), 'wb') as f:
             for chunk in resp.iter_bytes():
-                f.write(chunk)
+                if chunk:
+                    f.write(chunk)
 
     return filename
 
