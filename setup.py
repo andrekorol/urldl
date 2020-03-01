@@ -31,7 +31,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/andrekorol/urldl',
     keywords=['url', 'download'],
-    install_requires=['httpx'],
+    install_requires=['httpx', 'aiofiles'],
     packages=setuptools.find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',
