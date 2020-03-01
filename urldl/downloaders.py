@@ -3,13 +3,15 @@ from cgi import parse_header
 from typing import List, Optional, Sequence
 from urllib.parse import unquote, urlparse
 
-import httpx
+from httpx import AsyncClient, Client
 
 
 def download(url: str, filename: Optional[str] = '',
              save_dir: Optional[str] = '',
-             client: Optional[httpx.Client] = httpx.Client()) -> str:
-    """Download the file found at the given URL."""
+             client: Optional[Client] = Client()) -> str:
+    """Use an HTTP `client` to download the file found at `url`
+    and save it to `save_dir` as `filename`.
+    """
     with client.stream('GET', url) as resp:
         if not filename:
             params = {}
@@ -37,12 +39,13 @@ def download(url: str, filename: Optional[str] = '',
     return filename
 
 
-def download_files(urls: Sequence[str],
+def multi_download(urls: Sequence[str],
                    filenames: Optional[List[str]] = [],
                    save_dir: Optional[str] = '',
-                   client: Optional[httpx.Client] = httpx.Client()) \
-        -> List[str]:
-    """Download the files found at the given URLs."""
+                   client: Optional[Client] = Client()) -> List[str]:
+    """Use an HTTP `client` to download multiple files found at `urls`
+    and save them to `save_dir` as `filenames`.
+    """
     file_list = []
     for url in urls:
         if filenames:
