@@ -1,11 +1,11 @@
 import asyncio
-import pathlib
-from cgi import parse_header
+from pathlib import Path, PurePath
 from typing import List, Optional, Sequence
-from urllib.parse import unquote, urlparse
 
 import aiofiles
 from httpx import AsyncClient, Client
+
+from .helpers import get_filename
 
 
 def download(url: str, filename: Optional[str] = '',
@@ -27,24 +27,12 @@ def download(url: str, filename: Optional[str] = '',
     """
     with client.stream('GET', url) as resp:
         if not filename:
-            params = {}
-            if 'Content-Disposition' in resp.headers:
-                content_disposition = resp.headers.get('Content-Disposition')
-                _, params = parse_header(content_disposition)
-            if params and 'filename*' in params:
-                filename_str = params['filename*']
-                encoding, filename = filename_str.split("''")
-                filename = unquote(filename, encoding)
-            elif params and 'filename' in params:
-                filename = unquote(params['filename'])
-            else:
-                parsed_url = urlparse(url)
-                filename = unquote(pathlib.PurePath(parsed_url.path).name)
+            filename = get_filename(resp.headers, url)
 
         if save_dir:
-            pathlib.Path(save_dir).mkdir(exist_ok=True)
+            Path(save_dir).mkdir(exist_ok=True)
 
-        with open(pathlib.PurePath(save_dir, filename), 'wb') as f:
+        with open(PurePath(save_dir, filename), 'wb') as f:
             for chunk in resp.iter_bytes():
                 if chunk:
                     f.write(chunk)
@@ -103,25 +91,12 @@ async def aio_download(url: str, filename: Optional[str] = '',
     """
     async with client.stream('GET', url) as resp:
         if not filename:
-            params = {}
-            if 'Content-Disposition' in resp.headers:
-                content_disposition = resp.headers.get('Content-Disposition')
-                _, params = parse_header(content_disposition)
-            if params and 'filename*' in params:
-                filename_str = params['filename*']
-                encoding, filename = filename_str.split("''")
-                filename = unquote(filename, encoding)
-            elif params and 'filename' in params:
-                filename = unquote(params['filename'])
-            else:
-                parsed_url = urlparse(url)
-                filename = unquote(pathlib.PurePath(parsed_url.path).name)
+            filename = get_filename(resp.headers, url)
 
         if save_dir:
-            pathlib.Path(save_dir).mkdir(exist_ok=True)
+            Path(save_dir).mkdir(exist_ok=True)
 
-        async with aiofiles.open(pathlib.PurePath(save_dir, filename),
-                                 'wb') as f:
+        async with aiofiles.open(PurePath(save_dir, filename), 'wb') as f:
             async for chunk in resp.aiter_bytes():
                 if chunk:
                     await f.write(chunk)
