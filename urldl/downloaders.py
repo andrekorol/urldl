@@ -13,6 +13,17 @@ def download(url: str, filename: Optional[str] = '',
              client: Optional[Client] = Client()) -> str:
     """Use an HTTP `client` to download the file found at `url`
     and save it to `save_dir` as `filename`.
+
+    :param url: URL of a file to be downloaded.
+    :param filename: name to use when saving the downloaded file.
+    Defaults to the filename given in the response headers (if present),
+    or to the filename parsed from the URL.
+    :param save_dir: directory to save downloaded file.
+    If omitted, the file is saved in the current working directory.
+    :param client: HTTPX client to be used when making requests.
+    Defaults to a basic client, but a client with any valid optional parameters
+    can be passed.
+    :returns: name of the downloaded file.
     """
     with client.stream('GET', url) as resp:
         if not filename:
@@ -47,6 +58,18 @@ def multi_download(urls: Sequence[str],
                    client: Optional[Client] = Client()) -> List[str]:
     """Use an HTTP `client` to download multiple files found at `urls`
     and save them to `save_dir` as `filenames`.
+
+    :param urls: Sequence of URLs of files to be downloaded.
+    :param filenames: List of names to use when saving the downloaded files.
+    If the list is empty or exhausted, the names will default to the filenames
+    given in the response headers (if present),
+    or to the filenames parsed from the URLs.
+    :param save_dir: directory to save downloaded files.
+    If omitted, the files are saved in the current working directory.
+    :param client: HTTPX client to be used when making requests.
+    Defaults to a basic client, but a client with any valid optional parameters
+    can be passed.
+    :returns: list of names of the downloaded files.
     """
     file_list = []
     for url in urls:
@@ -66,6 +89,17 @@ async def aio_download(url: str, filename: Optional[str] = '',
                        client: Optional[AsyncClient] = AsyncClient()) -> str:
     """Use an async HTTP `client` to download the file found at `url`
     and save it to `folder` as `filename`.
+
+    :param url: URL of a file to be scheduled for download.
+    :param filename: name to use when saving the downloaded file.
+    Defaults to the filename given in the response headers (if present),
+    or to the filename parsed from the url.
+    :param save_dir: directory to save downloaded file.
+    If omitted, the file is saved in the current working directory.
+    :param client: HTTPX async client to be used when scheduling requests.
+    Defaults to a basic async client, but a client with any valid optional
+    parameters can be passed.
+    :returns: name of the downloaded file
     """
     async with client.stream('GET', url) as resp:
         if not filename:
@@ -100,8 +134,20 @@ async def aio_multi_download(urls: Sequence[str],
                              save_dir: Optional[str] = '',
                              client: Optional[AsyncClient] = AsyncClient()) \
         -> List[str]:
-    """Use an HTTP `client` to download multiple files found at `urls`
+    """Use an async HTTP `client` to download multiple files found at `urls`
     and save them to `save_dir` as `filenames`.
+
+    :param urls: Sequence of URLs of files to be scheduled for download.
+    :param filenames: List of names to use when saving the downloaded files.
+    If the list is empty or exhausted, the names will default to the filenames
+    given in the response headers (if present),
+    or to the filenames parsed from the URLs.
+    :param save_dir: directory to save downloaded files.
+    If omitted, the files are saved in the current working directory.
+    :param client: HTTPX async client to be used when scheduling requests.
+    Defaults to a basic async client, but a client with any valid optional
+    parameters can be passed.
+    :returns: list of names of the downloaded files.
     """
     tasks = []
     for url in urls:
