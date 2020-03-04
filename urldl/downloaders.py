@@ -35,7 +35,7 @@ def download(url: str, filename: Optional[str] = '',
                 filename = get_filename(resp.headers, url)
 
             if save_dir:
-                Path(save_dir).mkdir(exist_ok=True)
+                Path(save_dir).mkdir(parents=True, exist_ok=True)
 
             with open(PurePath(save_dir, filename), 'wb') as f:
                 for chunk in resp.iter_bytes():
@@ -109,7 +109,7 @@ async def aio_download(url: str, filename: Optional[str] = '',
                 filename = get_filename(resp.headers, url)
 
             if save_dir:
-                Path(save_dir).mkdir(exist_ok=True)
+                Path(save_dir).mkdir(parents=True, exist_ok=True)
 
             async with aiofiles.open(PurePath(save_dir, filename), 'wb') as f:
                 async for chunk in resp.aiter_bytes():
