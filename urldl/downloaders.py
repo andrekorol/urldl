@@ -1,16 +1,17 @@
 import asyncio
 from pathlib import Path, PurePath
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Union
 
 import aiofiles
-from httpx import AsyncClient, Client
+from httpx import AsyncClient, Client, HTTPError
+from httpx.exceptions import HTTPError, InvalidURL, NetworkError
 
 from .helpers import get_filename
 
 
 def download(url: str, filename: Optional[str] = '',
              save_dir: Optional[str] = '',
-             client: Optional[Client] = Client()) -> str:
+             client: Optional[Client] = Client()) -> Union[str, Exception]:
     """Use an HTTP `client` to download the file found at `url`
     and save it to `save_dir` as `filename`.
 
@@ -23,19 +24,26 @@ def download(url: str, filename: Optional[str] = '',
     :param client: HTTPX client to be used when making requests.
     Defaults to a basic client, but a client with any valid optional parameters
     can be passed.
-    :returns: name of the downloaded file.
+    :returns: name of the file if the download was successful, if not,
+    an exception to be either handled or raised.
     """
-    with client.stream('GET', url) as resp:
-        if not filename:
-            filename = get_filename(resp.headers, url)
+    try:
+        with client.stream('GET', url) as resp:
+            resp.raise_for_status()
 
-        if save_dir:
-            Path(save_dir).mkdir(exist_ok=True)
+            if not filename:
+                filename = get_filename(resp.headers, url)
 
-        with open(PurePath(save_dir, filename), 'wb') as f:
-            for chunk in resp.iter_bytes():
-                if chunk:
-                    f.write(chunk)
+            if save_dir:
+                Path(save_dir).mkdir(exist_ok=True)
+
+            with open(PurePath(save_dir, filename), 'wb') as f:
+                for chunk in resp.iter_bytes():
+                    if chunk:
+                        f.write(chunk)
+
+    except (InvalidURL, NetworkError, HTTPError, PermissionError) as e:
+        return e
 
     return filename
 
@@ -43,7 +51,8 @@ def download(url: str, filename: Optional[str] = '',
 def multi_download(urls: Sequence[str],
                    filenames: Optional[List[str]] = [],
                    save_dir: Optional[str] = '',
-                   client: Optional[Client] = Client()) -> List[str]:
+                   client: Optional[Client] = Client()) -> List[
+                       Union[str, Exception]]:
     """Use an HTTP `client` to download multiple files found at `urls`
     and save them to `save_dir` as `filenames`.
 
@@ -57,7 +66,8 @@ def multi_download(urls: Sequence[str],
     :param client: HTTPX client to be used when making requests.
     Defaults to a basic client, but a client with any valid optional parameters
     can be passed.
-    :returns: list of names of the downloaded files.
+    :returns: list of filenames (successfull downloads)
+    and exceptions (failed downloads).
     """
     file_list = []
     for url in urls:
@@ -74,7 +84,8 @@ def multi_download(urls: Sequence[str],
 
 async def aio_download(url: str, filename: Optional[str] = '',
                        save_dir: Optional[str] = '',
-                       client: Optional[AsyncClient] = AsyncClient()) -> str:
+                       client: Optional[AsyncClient] = AsyncClient()) -> Union[
+                           str, Exception]:
     """Use an async HTTP `client` to download the file found at `url`
     and save it to `folder` as `filename`.
 
@@ -87,19 +98,26 @@ async def aio_download(url: str, filename: Optional[str] = '',
     :param client: HTTPX async client to be used when scheduling requests.
     Defaults to a basic async client, but a client with any valid optional
     parameters can be passed.
-    :returns: name of the downloaded file
+    :returns: name of the file if the download was successful, if not,
+    an exception to be either handled or raised.
     """
-    async with client.stream('GET', url) as resp:
-        if not filename:
-            filename = get_filename(resp.headers, url)
+    try:
+        async with client.stream('GET', url) as resp:
+            resp.raise_for_status()
 
-        if save_dir:
-            Path(save_dir).mkdir(exist_ok=True)
+            if not filename:
+                filename = get_filename(resp.headers, url)
 
-        async with aiofiles.open(PurePath(save_dir, filename), 'wb') as f:
-            async for chunk in resp.aiter_bytes():
-                if chunk:
-                    await f.write(chunk)
+            if save_dir:
+                Path(save_dir).mkdir(exist_ok=True)
+
+            async with aiofiles.open(PurePath(save_dir, filename), 'wb') as f:
+                async for chunk in resp.aiter_bytes():
+                    if chunk:
+                        await f.write(chunk)
+
+    except (InvalidURL, NetworkError, HTTPError, PermissionError) as e:
+        return e
 
     return filename
 
@@ -108,7 +126,7 @@ async def aio_multi_download(urls: Sequence[str],
                              filenames: Optional[List[str]] = [],
                              save_dir: Optional[str] = '',
                              client: Optional[AsyncClient] = AsyncClient()) \
-        -> List[str]:
+        -> List[Union[str, Exception]]:
     """Use an async HTTP `client` to download multiple files found at `urls`
     and save them to `save_dir` as `filenames`.
 
@@ -122,7 +140,8 @@ async def aio_multi_download(urls: Sequence[str],
     :param client: HTTPX async client to be used when scheduling requests.
     Defaults to a basic async client, but a client with any valid optional
     parameters can be passed.
-    :returns: list of names of the downloaded files.
+    :returns: list of filenames (successfull downloads)
+    and exceptions (failed downloads).
     """
     tasks = []
     for url in urls:
